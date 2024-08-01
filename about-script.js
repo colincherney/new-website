@@ -38,11 +38,11 @@ let scrollTimeout;
 
 function getParticleCount() {
   if (window.innerWidth <= 768) {
-    return 25; // Slightly increased for mobile
+    return 25; // For mobile
   } else if (window.innerWidth <= 1024) {
-    return 60; // Slightly increased for tablets
+    return 60; // For tablets
   } else {
-    return 120; // Slightly increased for desktop
+    return 120; // For desktop
   }
 }
 
@@ -50,17 +50,17 @@ class Particle {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = Math.random() * 4 + 2; // Increased particle size
-    this.speedX = Math.random() * 2 - 1; // Slightly faster
-    this.speedY = Math.random() * 2 - 1; // Slightly faster
-    this.color = `hsla(${hue}, 100%, 50%, 0.7)`; // Increased opacity
+    this.size = Math.random() * 4 + 2;
+    this.speedX = Math.random() * 2 - 1;
+    this.speedY = Math.random() * 2 - 1;
+    this.color = `hsla(${hue}, 100%, 50%, 0.7)`;
   }
 
   update() {
     this.x += this.speedX;
     this.y += this.speedY;
 
-    if (this.size > 0.2) this.size -= 0.05; // Slightly faster size reduction
+    if (this.size > 0.2) this.size -= 0.05;
   }
 
   draw() {
@@ -76,12 +76,11 @@ function init() {
 }
 
 function animate() {
-  ctx.fillStyle = "rgba(224, 224, 224, 0.1)"; // Semi-transparent background
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
 
   handleParticles();
 
-  hue += 0.5; // Slower color change
+  hue += 0.5;
   requestAnimationFrame(animate);
 }
 
@@ -96,10 +95,9 @@ function handleParticles() {
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance < 100) {
-        // Increased connection distance
         ctx.beginPath();
         ctx.strokeStyle = particles[i].color;
-        ctx.lineWidth = particles[i].size / 8; // Slightly thicker lines
+        ctx.lineWidth = particles[i].size / 8;
         ctx.moveTo(particles[i].x, particles[i].y);
         ctx.lineTo(particles[j].x, particles[j].y);
         ctx.stroke();
@@ -116,7 +114,6 @@ function handleParticles() {
 function createParticles() {
   if (mouse.x !== null && mouse.y !== null && !isScrolling) {
     for (let i = 0; i < 3; i++) {
-      // Create three particles at a time
       particles.push(new Particle(mouse.x, mouse.y));
     }
   }
