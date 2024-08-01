@@ -33,14 +33,16 @@ let particles = [];
 let particleCount = getParticleCount();
 let mouse = { x: null, y: null, radius: 100 };
 let hue = 0;
+let isScrolling = false;
+let scrollTimeout;
 
 function getParticleCount() {
   if (window.innerWidth <= 768) {
-    return 50;
+    return 20; // Further reduced particle count for mobile
   } else if (window.innerWidth <= 1024) {
-    return 100;
+    return 50; // Further reduced particle count for tablets
   } else {
-    return 150;
+    return 100; // Reduced particle count for desktop
   }
 }
 
@@ -48,17 +50,17 @@ class Particle {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = Math.random() * 5 + 1;
-    this.speedX = Math.random() * 3 - 1.5;
-    this.speedY = Math.random() * 3 - 1.5;
-    this.color = `hsl(${hue}, 100%, 50%)`;
+    this.size = Math.random() * 3 + 1; // Even smaller particles
+    this.speedX = Math.random() * 2 - 0.5; // Slower horizontal speed
+    this.speedY = Math.random() * 2 - 0.5; // Slower vertical speed
+    this.color = `hsla(${hue}, 100%, 50%, 0.99)`; // Added some transparency
   }
 
   update() {
     this.x += this.speedX;
     this.y += this.speedY;
 
-    if (this.size > 0.2) this.size -= 0.1;
+    if (this.size > 0.2) this.size -= 0.03; // Even slower size reduction
   }
 
   draw() {
@@ -74,12 +76,11 @@ function init() {
 }
 
 function animate() {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.02)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   handleParticles();
 
-  hue += 2;
+  hue += 0.5; // Slower color change
   requestAnimationFrame(animate);
 }
 
@@ -93,17 +94,18 @@ function handleParticles() {
       const dy = particles[i].y - particles[j].y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < 100) {
+      if (distance < 60) {
+        // Reduced connection distance
         ctx.beginPath();
         ctx.strokeStyle = particles[i].color;
-        ctx.lineWidth = particles[i].size / 10;
+        ctx.lineWidth = particles[i].size / 5;
         ctx.moveTo(particles[i].x, particles[i].y);
         ctx.lineTo(particles[j].x, particles[j].y);
         ctx.stroke();
       }
     }
 
-    if (particles[i].size <= 0.3) {
+    if (particles[i].size <= 0.2) {
       particles.splice(i, 1);
       i--;
     }
@@ -111,34 +113,67 @@ function handleParticles() {
 }
 
 function createParticles() {
-  if (mouse.x !== null && mouse.y !== null) {
-    for (let i = 0; i < 5; i++) {
+  if (mouse.x !== null && mouse.y !== null && !isScrolling) {
+    for (let i = 0; i < 1; i++) {
+      // Create only one particle at a time
       particles.push(new Particle(mouse.x, mouse.y));
     }
   }
 }
 
+function throttle(func, limit) {
+  let inThrottle;
+  return function () {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+const throttledCreateParticles = throttle(createParticles, 50);
+
 window.addEventListener("mousemove", function (event) {
   mouse.x = event.x;
   mouse.y = event.y;
-  createParticles();
+  throttledCreateParticles();
 });
+
+window.addEventListener(
+  "touchstart",
+  function (event) {
+    mouse.x = event.touches[0].clientX;
+    mouse.y = event.touches[0].clientY;
+    throttledCreateParticles();
+  },
+  { passive: true }
+);
 
 window.addEventListener(
   "touchmove",
   function (event) {
-    event.preventDefault();
     mouse.x = event.touches[0].clientX;
     mouse.y = event.touches[0].clientY;
-    createParticles();
+    throttledCreateParticles();
   },
-  { passive: false }
+  { passive: true }
 );
 
 window.addEventListener("resize", function () {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   particleCount = getParticleCount();
+});
+
+window.addEventListener("scroll", function () {
+  isScrolling = true;
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(function () {
+    isScrolling = false;
+  }, 100);
 });
 
 init();
