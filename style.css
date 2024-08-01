@@ -181,6 +181,19 @@ body {
   margin-bottom: 50px;
   position: relative;
   padding-left: 40px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease;
+}
+
+.timeline-item.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.timeline-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .timeline-item::before {
@@ -205,17 +218,6 @@ body {
   font-size: 1rem;
   color: #333;
   line-height: 1.5;
-}
-
-.timeline-item {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s, transform 0.5s;
-}
-
-.timeline-item.show {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .hidden {

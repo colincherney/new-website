@@ -38,6 +38,7 @@ function switchContent(toName) {
   var timeline = document.getElementById("timeline");
 
   if (toName) {
+    window.removeEventListener("scroll", animateTimelineItems);
     content.style.justifyContent = "center";
     timeline.style.opacity = "0";
     setTimeout(() => {
@@ -72,12 +73,10 @@ function switchContent(toName) {
         isTransitioning = false;
         isNameVisible = false;
 
-        const items = document.querySelectorAll(".timeline-item");
-        items.forEach((item, index) => {
-          setTimeout(() => {
-            item.classList.add("show");
-          }, index * 200);
-        });
+        // Animate timeline items
+        animateTimelineItems();
+        // Add event listener for scroll
+        window.addEventListener("scroll", animateTimelineItems);
       }, 50);
     }, 500);
   }
@@ -87,6 +86,21 @@ function scrollDown() {
   if (isNameVisible && !isTransitioning) {
     switchContent(false);
   }
+}
+
+function animateTimelineItems() {
+  const timelineItems = document.querySelectorAll(".timeline-item");
+  const triggerBottom = window.innerHeight * 0.8;
+
+  timelineItems.forEach((item) => {
+    const itemTop = item.getBoundingClientRect().top;
+
+    if (itemTop < triggerBottom) {
+      item.classList.add("animate");
+    } else {
+      item.classList.remove("animate");
+    }
+  });
 }
 
 // Scroll event listeners
