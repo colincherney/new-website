@@ -168,7 +168,7 @@ window.addEventListener("load", (event) => {
   }, 100);
 });
 
-// Particle animation
+// Interactive Fluid Animation
 const canvas = document.getElementById("particle-canvas");
 const ctx = canvas.getContext("2d");
 
@@ -177,28 +177,30 @@ canvas.height = window.innerHeight;
 
 let particles = [];
 let particleCount = getParticleCount();
+let mouse = { x: null, y: null, radius: 100 };
+let hue = 0;
 
 function getParticleCount() {
   if (window.innerWidth <= 768) {
     // Mobile devices
-    return 30;
+    return 50;
   } else if (window.innerWidth <= 1024) {
     // Tablets
-    return 50;
+    return 100;
   } else {
     // Larger screens
-    return 100;
+    return 150;
   }
 }
 
 class Particle {
-  constructor() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
     this.size = Math.random() * 5 + 1;
     this.speedX = Math.random() * 3 - 1.5;
     this.speedY = Math.random() * 3 - 1.5;
-    this.color = `hsl(${Math.random() * 360}, 50%, 50%)`;
+    this.color = `hsl(${hue}, 100%, 50%)`;
   }
 
   update() {
@@ -206,9 +208,6 @@ class Particle {
     this.y += this.speedY;
 
     if (this.size > 0.2) this.size -= 0.1;
-
-    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
   }
 
   draw() {
@@ -221,13 +220,19 @@ class Particle {
 
 function init() {
   particles = [];
-  for (let i = 0; i < particleCount; i++) {
-    particles.push(new Particle());
-  }
 }
 
 function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.02)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  handleParticles();
+
+  hue += 2;
+  requestAnimationFrame(animate);
+}
+
+function handleParticles() {
   for (let i = 0; i < particles.length; i++) {
     particles[i].update();
     particles[i].draw();
@@ -240,32 +245,49 @@ function animate() {
       if (distance < 100) {
         ctx.beginPath();
         ctx.strokeStyle = particles[i].color;
-        ctx.lineWidth = 0.2;
+        ctx.lineWidth = particles[i].size / 10;
         ctx.moveTo(particles[i].x, particles[i].y);
         ctx.lineTo(particles[j].x, particles[j].y);
         ctx.stroke();
       }
     }
 
-    if (particles[i].size <= 0.2) {
+    if (particles[i].size <= 0.3) {
       particles.splice(i, 1);
       i--;
-      particles.push(new Particle());
     }
   }
-  requestAnimationFrame(animate);
 }
+
+function createParticles() {
+  if (mouse.x !== null && mouse.y !== null) {
+    for (let i = 0; i < 5; i++) {
+      particles.push(new Particle(mouse.x, mouse.y));
+    }
+  }
+}
+
+window.addEventListener("mousemove", function (event) {
+  mouse.x = event.x;
+  mouse.y = event.y;
+  createParticles();
+});
+
+window.addEventListener(
+  "touchmove",
+  function (event) {
+    event.preventDefault();
+    mouse.x = event.touches[0].clientX;
+    mouse.y = event.touches[0].clientY;
+    createParticles();
+  },
+  { passive: false }
+);
 
 window.addEventListener("resize", function () {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-
-  // Update particle count on resize
-  let newParticleCount = getParticleCount();
-  if (newParticleCount !== particleCount) {
-    particleCount = newParticleCount;
-    init(); // Reinitialize particles with new count
-  }
+  particleCount = getParticleCount();
 });
 
 init();
