@@ -38,11 +38,11 @@ let scrollTimeout;
 
 function getParticleCount() {
   if (window.innerWidth <= 768) {
-    return 20; // Further reduced particle count for mobile
+    return 25; // Slightly increased for mobile
   } else if (window.innerWidth <= 1024) {
-    return 50; // Further reduced particle count for tablets
+    return 60; // Slightly increased for tablets
   } else {
-    return 100; // Reduced particle count for desktop
+    return 120; // Slightly increased for desktop
   }
 }
 
@@ -50,17 +50,17 @@ class Particle {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = Math.random() * 3 + 1; // Even smaller particles
-    this.speedX = Math.random() * 2 - 0.5; // Slower horizontal speed
-    this.speedY = Math.random() * 2 - 0.5; // Slower vertical speed
-    this.color = `hsla(${hue}, 100%, 50%, 0.99)`; // Added some transparency
+    this.size = Math.random() * 4 + 2; // Increased particle size
+    this.speedX = Math.random() * 2 - 1; // Slightly faster
+    this.speedY = Math.random() * 2 - 1; // Slightly faster
+    this.color = `hsla(${hue}, 100%, 50%, 0.7)`; // Increased opacity
   }
 
   update() {
     this.x += this.speedX;
     this.y += this.speedY;
 
-    if (this.size > 0.2) this.size -= 0.03; // Even slower size reduction
+    if (this.size > 0.2) this.size -= 0.05; // Slightly faster size reduction
   }
 
   draw() {
@@ -76,7 +76,8 @@ function init() {
 }
 
 function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(224, 224, 224, 0.1)"; // Semi-transparent background
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   handleParticles();
 
@@ -94,18 +95,18 @@ function handleParticles() {
       const dy = particles[i].y - particles[j].y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < 60) {
-        // Reduced connection distance
+      if (distance < 100) {
+        // Increased connection distance
         ctx.beginPath();
         ctx.strokeStyle = particles[i].color;
-        ctx.lineWidth = particles[i].size / 5;
+        ctx.lineWidth = particles[i].size / 8; // Slightly thicker lines
         ctx.moveTo(particles[i].x, particles[i].y);
         ctx.lineTo(particles[j].x, particles[j].y);
         ctx.stroke();
       }
     }
 
-    if (particles[i].size <= 0.2) {
+    if (particles[i].size <= 0.3) {
       particles.splice(i, 1);
       i--;
     }
@@ -114,8 +115,8 @@ function handleParticles() {
 
 function createParticles() {
   if (mouse.x !== null && mouse.y !== null && !isScrolling) {
-    for (let i = 0; i < 1; i++) {
-      // Create only one particle at a time
+    for (let i = 0; i < 3; i++) {
+      // Create three particles at a time
       particles.push(new Particle(mouse.x, mouse.y));
     }
   }
