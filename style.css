@@ -139,6 +139,7 @@ body {
   margin-top: 0;
   background: linear-gradient(45deg, #3498db, #e74c3c);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 200% 200%;
   animation: gradientFlow 5s ease infinite;
