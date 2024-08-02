@@ -118,6 +118,7 @@ window.addEventListener(
 );
 
 let touchStartY = 0;
+let touchEndY = 0;
 
 window.addEventListener(
   "touchstart",
@@ -131,7 +132,7 @@ window.addEventListener(
   "touchmove",
   function (e) {
     e.preventDefault();
-    let touchEndY = e.touches[0].clientY;
+    touchEndY = e.touches[0].clientY;
     if (touchStartY > touchEndY + 5) {
       switchContent(false);
     } else if (touchStartY < touchEndY - 5) {
@@ -180,6 +181,11 @@ window.addEventListener("load", (event) => {
   setTimeout(() => {
     simulateScrollUp();
   }, 100);
+
+  // Initialize new features
+  handleParallax();
+  const nameElement = document.getElementById("name");
+  typeWriter(nameElement, nameElement.textContent);
 });
 
 // Interactive Fluid Animation
@@ -306,3 +312,44 @@ window.addEventListener("resize", function () {
 
 init();
 animate();
+
+// New functions for added features
+
+// Parallax Effect
+function handleParallax() {
+  const parallaxElements = document.querySelectorAll(".parallax");
+  window.addEventListener("scroll", () => {
+    let scrollY = window.pageYOffset;
+    parallaxElements.forEach((el) => {
+      const speed = el.dataset.speed || 0.5;
+      el.style.transform = `translateY(${scrollY * speed}px)`;
+    });
+  });
+
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener("deviceorientation", (event) => {
+      const tiltX = event.beta;
+      const tiltY = event.gamma;
+      parallaxElements.forEach((el) => {
+        const speed = el.dataset.speed || 0.5;
+        el.style.transform = `translate(${tiltY * speed}px, ${
+          tiltX * speed
+        }px)`;
+      });
+    });
+  }
+}
+
+// Typing Effect
+function typeWriter(element, text, speed = 100) {
+  element.textContent = ""; // Clear existing text
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      element.textContent += text.charAt(i);
+      i++;
+      setTimeout(type, speed);
+    }
+  }
+  type();
+}
