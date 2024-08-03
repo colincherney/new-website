@@ -380,7 +380,7 @@ function typeWriter(element, text, speed = 100) {
   type();
 }
 
-// Blue Quantum Entanglement Network Cursor with Enhanced Visibility
+// Blue Quantum Entanglement Network Cursor with Enhanced Visibility and Click Effect
 const entanglementCanvas = document.getElementById("quantum-cursor");
 const entanglementCtx = entanglementCanvas.getContext("2d");
 
@@ -404,6 +404,9 @@ const cursorGlowColor = "rgba(255, 255, 255, 0.5)"; // White glow
 
 let isHovering = false;
 let pulseSize = 0;
+
+// Click effect variables
+let clickEffects = [];
 
 class EntangledParticle {
   constructor() {
@@ -451,6 +454,51 @@ class EntangledParticle {
   }
 }
 
+class ClickEffect {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.particles = [];
+    this.lifetime = 60; // Effect lasts for 60 frames
+    for (let i = 0; i < 20; i++) {
+      this.particles.push({
+        x: this.x,
+        y: this.y,
+        radius: Math.random() * 2 + 1,
+        speed: Math.random() * 5 + 2,
+        angle: Math.random() * Math.PI * 2,
+        spin: Math.random() * 0.2 - 0.1,
+        color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
+      });
+    }
+  }
+
+  update() {
+    this.lifetime--;
+    this.particles.forEach((particle) => {
+      particle.x += Math.cos(particle.angle) * particle.speed;
+      particle.y += Math.sin(particle.angle) * particle.speed;
+      particle.angle += particle.spin;
+      particle.radius *= 0.96;
+    });
+  }
+
+  draw() {
+    this.particles.forEach((particle) => {
+      entanglementCtx.beginPath();
+      entanglementCtx.arc(
+        particle.x,
+        particle.y,
+        particle.radius,
+        0,
+        Math.PI * 2
+      );
+      entanglementCtx.fillStyle = particle.color;
+      entanglementCtx.fill();
+    });
+  }
+}
+
 const entangledParticles = Array(60)
   .fill()
   .map(() => new EntangledParticle());
@@ -480,6 +528,15 @@ function animateEntanglementCursor() {
   });
 
   renderEntanglements();
+
+  // Update and draw click effects
+  clickEffects.forEach((effect, index) => {
+    effect.update();
+    effect.draw();
+    if (effect.lifetime <= 0) {
+      clickEffects.splice(index, 1);
+    }
+  });
 
   // Draw enhanced cursor
   // Outer glow
@@ -547,6 +604,23 @@ function handleEntanglementResize() {
   canvasHeight = entanglementCanvas.height = window.innerHeight;
 }
 
+function handleClick(e) {
+  clickEffects.push(new ClickEffect(e.clientX, e.clientY));
+
+  // Distort nearby particles
+  entangledParticles.forEach((particle) => {
+    const dx = particle.posX - e.clientX;
+    const dy = particle.posY - e.clientY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance < 100) {
+      const angle = Math.atan2(dy, dx);
+      const force = (100 - distance) / 10;
+      particle.posX += Math.cos(angle) * force;
+      particle.posY += Math.sin(angle) * force;
+    }
+  });
+}
+
 const isEntanglementTouchDevice =
   "ontouchstart" in window ||
   navigator.maxTouchPoints > 0 ||
@@ -554,12 +628,13 @@ const isEntanglementTouchDevice =
 
 if (!isEntanglementTouchDevice) {
   document.addEventListener("mousemove", updateEntanglementCursor);
+  document.addEventListener("click", handleClick);
   window.addEventListener("resize", handleEntanglementResize);
   animateEntanglementCursor();
 
   // Interaction with elements
   const entanglementInteractiveElements = document.querySelectorAll(
-    "a, button, .dropdown, #scroll-indicator"
+    "a, button, .dropdown, #scroll-indicator, .dropbtn, .dropdown-content, .dropdown-content button"
   );
 
   entanglementInteractiveElements.forEach((el) => {
@@ -577,5 +652,21 @@ if (!isEntanglementTouchDevice) {
         particle.velocity /= 1.5;
       });
     });
+
+    // Prevent default cursor
+    el.addEventListener("mouseover", (e) => {
+      e.target.style.cursor = "none";
+    });
+  });
+
+  // Additional handling for dynamically added elements
+  document.body.addEventListener("mouseover", (e) => {
+    if (
+      e.target.matches(
+        "a, button, .dropdown, #scroll-indicator, .dropbtn, .dropdown-content, .dropdown-content button"
+      )
+    ) {
+      e.target.style.cursor = "none";
+    }
   });
 }
