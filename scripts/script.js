@@ -380,7 +380,7 @@ function typeWriter(element, text, speed = 100) {
   type();
 }
 
-// Blue Quantum Entanglement Network Cursor with Enhanced Visibility and Click Effect
+// Blue Quantum Entanglement Network Cursor with Snowflake/Star Particles
 const entanglementCanvas = document.getElementById("quantum-cursor");
 const entanglementCtx = entanglementCanvas.getContext("2d");
 
@@ -389,15 +389,6 @@ let canvasHeight = (entanglementCanvas.height = window.innerHeight);
 
 let entanglementCursorX = canvasWidth / 2;
 let entanglementCursorY = canvasHeight / 2;
-
-// Blue-centric color palette
-const colorPalette = [
-  "rgba(52, 152, 219, 0.8)", // Light blue
-  "rgba(41, 128, 185, 0.8)", // Medium blue
-  "rgba(27, 79, 114, 0.8)", // Dark blue
-  "rgba(93, 173, 226, 0.8)", // Sky blue
-  "rgba(52, 73, 94, 0.8)", // Blue-gray
-];
 
 const cursorColor = "rgba(255, 255, 255, 1)"; // Solid white for better visibility
 const cursorGlowColor = "rgba(255, 255, 255, 0.5)"; // White glow
@@ -408,23 +399,44 @@ let pulseSize = 0;
 // Click effect variables
 let clickEffects = [];
 
+// Function to determine the number of particles based on screen size
+function getParticleTotal() {
+  const area = window.innerWidth * window.innerHeight;
+  if (area < 300000) {
+    // Small screens (e.g., most smartphones)
+    return 30;
+  } else if (area < 600000) {
+    // Medium screens (e.g., tablets)
+    return 60;
+  } else {
+    // Large screens
+    return 100;
+  }
+}
+
+let particleTotal = getParticleTotal();
+
 class EntangledParticle {
   constructor() {
     this.posX = Math.random() * canvasWidth;
     this.posY = Math.random() * canvasHeight;
-    this.radius = Math.random() * 3 + 2;
+    this.radius = Math.random() * 3 + 1;
     this.baseRadius = this.radius;
-    this.velocity = Math.random() * 0.7 + 0.3;
+    this.velocity = Math.random() * 0.5 + 0.1;
     this.direction = Math.random() * Math.PI * 2;
     this.isEntangled = false;
-    this.particleColor =
-      colorPalette[Math.floor(Math.random() * colorPalette.length)];
+    this.particleColor = `rgba(52, 152, 219, ${Math.random() * 0.5 + 0.3})`; // Blue color with varying opacity
+    this.pulseSpeed = Math.random() * 0.05 + 0.02;
+    this.rotation = 0;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+    this.points = Math.random() > 0.5 ? 5 : 6; // 5 for stars, 6 for snowflakes
   }
 
   updatePosition() {
     this.posX += Math.cos(this.direction) * this.velocity;
     this.posY += Math.sin(this.direction) * this.velocity;
 
+    // Boundary check
     if (this.posX < 0 || this.posX > canvasWidth)
       this.direction = Math.PI - this.direction;
     if (this.posY < 0 || this.posY > canvasHeight)
@@ -436,21 +448,55 @@ class EntangledParticle {
 
     if (distanceToCursor < 180) {
       this.isEntangled = true;
-      this.radius = this.baseRadius * (1 + (180 - distanceToCursor) / 180);
+      this.radius =
+        this.baseRadius *
+        (1 + (180 - distanceToCursor) / 180) *
+        (1 + Math.sin(Date.now() * this.pulseSpeed) * 0.2);
       if (isHovering) {
-        this.radius *= 1.5; // Increase size when hovering
+        this.radius *= 1.5;
       }
     } else {
       this.isEntangled = false;
-      this.radius = this.baseRadius;
+      this.radius =
+        this.baseRadius * (1 + Math.sin(Date.now() * this.pulseSpeed) * 0.2);
     }
+
+    this.rotation += this.rotationSpeed;
   }
 
   render() {
+    entanglementCtx.save();
+    entanglementCtx.translate(this.posX, this.posY);
+    entanglementCtx.rotate(this.rotation);
+
     entanglementCtx.beginPath();
-    entanglementCtx.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2);
     entanglementCtx.fillStyle = this.particleColor;
+    entanglementCtx.strokeStyle = this.particleColor;
+    entanglementCtx.lineWidth = 1;
+
+    for (let i = 0; i < this.points; i++) {
+      const angle = (i / this.points) * Math.PI * 2;
+      const x = Math.cos(angle) * this.radius;
+      const y = Math.sin(angle) * this.radius;
+
+      if (i === 0) {
+        entanglementCtx.moveTo(x, y);
+      } else {
+        if (this.points === 5) {
+          // Star shape
+          const innerX = Math.cos(angle + Math.PI / 5) * (this.radius / 2);
+          const innerY = Math.sin(angle + Math.PI / 5) * (this.radius / 2);
+          entanglementCtx.lineTo(innerX, innerY);
+        }
+        entanglementCtx.lineTo(x, y);
+      }
+    }
+
+    entanglementCtx.closePath();
     entanglementCtx.fill();
+    entanglementCtx.stroke();
+
+    entanglementCtx.restore();
   }
 }
 
@@ -468,7 +514,7 @@ class ClickEffect {
         speed: Math.random() * 5 + 2,
         angle: Math.random() * Math.PI * 2,
         spin: Math.random() * 0.2 - 0.1,
-        color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
+        color: `rgba(52, 152, 219, ${Math.random() * 0.5 + 0.5})`,
       });
     }
   }
@@ -499,9 +545,14 @@ class ClickEffect {
   }
 }
 
-const entangledParticles = Array(60)
-  .fill()
-  .map(() => new EntangledParticle());
+let entangledParticles = [];
+
+function initParticles() {
+  particleTotal = getParticleTotal();
+  entangledParticles = Array(particleTotal)
+    .fill()
+    .map(() => new EntangledParticle());
+}
 
 function renderEntanglements() {
   entangledParticles.forEach((particle) => {
@@ -509,11 +560,18 @@ function renderEntanglements() {
       entanglementCtx.beginPath();
       entanglementCtx.moveTo(particle.posX, particle.posY);
       entanglementCtx.lineTo(entanglementCursorX, entanglementCursorY);
-      entanglementCtx.strokeStyle = particle.particleColor.replace(
-        "0.8",
-        "0.3"
+
+      const gradient = entanglementCtx.createLinearGradient(
+        particle.posX,
+        particle.posY,
+        entanglementCursorX,
+        entanglementCursorY
       );
-      entanglementCtx.lineWidth = 1.5;
+      gradient.addColorStop(0, particle.particleColor);
+      gradient.addColorStop(1, "rgba(52, 152, 219, 0.1)");
+
+      entanglementCtx.strokeStyle = gradient;
+      entanglementCtx.lineWidth = 1;
       entanglementCtx.stroke();
     }
   });
@@ -538,79 +596,87 @@ function animateEntanglementCursor() {
     }
   });
 
-  // Draw enhanced cursor
-  // Outer glow
-  entanglementCtx.beginPath();
-  entanglementCtx.arc(
-    entanglementCursorX,
-    entanglementCursorY,
-    12,
-    0,
-    Math.PI * 2
-  );
-  const gradient = entanglementCtx.createRadialGradient(
-    entanglementCursorX,
-    entanglementCursorY,
-    6,
-    entanglementCursorX,
-    entanglementCursorY,
-    12
-  );
-  gradient.addColorStop(0, cursorGlowColor);
-  gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-  entanglementCtx.fillStyle = gradient;
-  entanglementCtx.fill();
-
-  // Inner cursor
-  entanglementCtx.beginPath();
-  entanglementCtx.arc(
-    entanglementCursorX,
-    entanglementCursorY,
-    8,
-    0,
-    Math.PI * 2
-  );
-  entanglementCtx.fillStyle = cursorColor;
-  entanglementCtx.fill();
-
-  // Draw hover effect
-  if (isHovering) {
+  // Draw enhanced cursor (only on non-touch devices)
+  if (!isTouchDevice) {
+    // Outer glow
     entanglementCtx.beginPath();
     entanglementCtx.arc(
       entanglementCursorX,
       entanglementCursorY,
-      pulseSize,
+      12,
       0,
       Math.PI * 2
     );
-    entanglementCtx.strokeStyle = cursorGlowColor;
-    entanglementCtx.lineWidth = 3;
-    entanglementCtx.stroke();
+    const gradient = entanglementCtx.createRadialGradient(
+      entanglementCursorX,
+      entanglementCursorY,
+      6,
+      entanglementCursorX,
+      entanglementCursorY,
+      12
+    );
+    gradient.addColorStop(0, cursorGlowColor);
+    gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+    entanglementCtx.fillStyle = gradient;
+    entanglementCtx.fill();
 
-    pulseSize += 1;
-    if (pulseSize > 40) pulseSize = 0;
+    // Inner cursor
+    entanglementCtx.beginPath();
+    entanglementCtx.arc(
+      entanglementCursorX,
+      entanglementCursorY,
+      8,
+      0,
+      Math.PI * 2
+    );
+    entanglementCtx.fillStyle = cursorColor;
+    entanglementCtx.fill();
+
+    // Draw hover effect
+    if (isHovering) {
+      entanglementCtx.beginPath();
+      entanglementCtx.arc(
+        entanglementCursorX,
+        entanglementCursorY,
+        pulseSize,
+        0,
+        Math.PI * 2
+      );
+      entanglementCtx.strokeStyle = cursorGlowColor;
+      entanglementCtx.lineWidth = 3;
+      entanglementCtx.stroke();
+
+      pulseSize += 1;
+      if (pulseSize > 40) pulseSize = 0;
+    }
   }
 
   requestAnimationFrame(animateEntanglementCursor);
 }
 
 function updateEntanglementCursor(e) {
-  entanglementCursorX = e.clientX;
-  entanglementCursorY = e.clientY;
+  entanglementCursorX =
+    e.clientX ||
+    (e.touches && e.touches[0] ? e.touches[0].clientX : entanglementCursorX);
+  entanglementCursorY =
+    e.clientY ||
+    (e.touches && e.touches[0] ? e.touches[0].clientY : entanglementCursorY);
 }
 
 function handleEntanglementResize() {
   canvasWidth = entanglementCanvas.width = window.innerWidth;
   canvasHeight = entanglementCanvas.height = window.innerHeight;
+  initParticles(); // Reinitialize particles on resize
 }
 
-function handleClick(e) {
-  clickEffects.push(new ClickEffect(e.clientX, e.clientY));
+function handleInteraction(e) {
+  updateEntanglementCursor(e);
+  clickEffects.push(new ClickEffect(entanglementCursorX, entanglementCursorY));
 
   // Distort nearby particles
   entangledParticles.forEach((particle) => {
-    const dx = particle.posX - e.clientX;
-    const dy = particle.posY - e.clientY;
+    const dx = particle.posX - entanglementCursorX;
+    const dy = particle.posY - entanglementCursorY;
     const distance = Math.sqrt(dx * dx + dy * dy);
     if (distance < 100) {
       const angle = Math.atan2(dy, dx);
@@ -621,18 +687,23 @@ function handleClick(e) {
   });
 }
 
-const isEntanglementTouchDevice =
+const isTouchDevice =
   "ontouchstart" in window ||
   navigator.maxTouchPoints > 0 ||
   navigator.msMaxTouchPoints > 0;
 
-if (!isEntanglementTouchDevice) {
+if (isTouchDevice) {
+  document.addEventListener("touchmove", updateEntanglementCursor, {
+    passive: false,
+  });
+  document.addEventListener("touchstart", handleInteraction, {
+    passive: false,
+  });
+} else {
   document.addEventListener("mousemove", updateEntanglementCursor);
-  document.addEventListener("click", handleClick);
-  window.addEventListener("resize", handleEntanglementResize);
-  animateEntanglementCursor();
+  document.addEventListener("click", handleInteraction);
 
-  // Interaction with elements
+  // Interaction with elements (only for non-touch devices)
   const entanglementInteractiveElements = document.querySelectorAll(
     "a, button, .dropdown, #scroll-indicator, .dropbtn, .dropdown-content, .dropdown-content button"
   );
@@ -670,3 +741,7 @@ if (!isEntanglementTouchDevice) {
     }
   });
 }
+
+window.addEventListener("resize", handleEntanglementResize);
+initParticles(); // Initialize particles
+animateEntanglementCursor();
