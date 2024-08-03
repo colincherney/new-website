@@ -821,26 +821,48 @@ window.addEventListener("resize", handleEntanglementResize);
 initParticles(); // Initialize particles
 animateEntanglementCursor();
 
-document.getElementById("name").addEventListener("click", (e) => {
-  const rect = e.target.getBoundingClientRect();
-  const x = e.clientX;
-  const y = e.clientY;
-  quantumWormholes.push(new QuantumWormhole(x, y));
-
-  // Add a distortion effect to the name
-  e.target.style.animation = "distortion 0.5s ease-in-out";
-  setTimeout(() => {
-    e.target.style.animation = "";
-  }, 500);
-
-  // Create a time dilation effect
-  createTimeDilationEffect();
-});
-
 function createTimeDilationEffect() {
   const content = document.getElementById("content");
   content.style.animation = "timeDilation 1s ease-in-out";
   setTimeout(() => {
     content.style.animation = "";
   }, 1000);
+}
+
+document.getElementById("name").addEventListener("click", (e) => {
+  const x = e.clientX;
+  const y = e.clientY;
+  quantumWormholes.push(new QuantumWormhole(x, y));
+
+  // Create quantum fracture effect
+  createQuantumFracture(x, y);
+
+  // Add a distortion effect to the name
+  e.target.style.animation = "distortion 0.8s ease-in-out";
+  setTimeout(() => {
+    e.target.style.animation = "";
+  }, 800);
+
+  // Create a time dilation effect
+  createTimeDilationEffect();
+});
+
+function createQuantumFracture(x, y) {
+  const fracture = document.createElement("div");
+  fracture.className = "quantum-fracture";
+  fracture.style.left = `${x}px`;
+  fracture.style.top = `${y}px`;
+  document.body.appendChild(fracture);
+
+  for (let i = 0; i < 8; i++) {
+    const shard = document.createElement("div");
+    shard.className = "fracture-shard";
+    shard.style.setProperty("--angle", `${i * 45}deg`);
+    shard.style.setProperty("--delay", `${i * 0.05}s`);
+    fracture.appendChild(shard);
+  }
+
+  setTimeout(() => {
+    fracture.remove();
+  }, 2000);
 }
