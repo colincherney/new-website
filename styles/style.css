@@ -368,3 +368,29 @@ button,
 .dropdown-content button {
   cursor: none !important;
 }
+
+@keyframes distortion {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(0.9) rotate(5deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(-2deg);
+  }
+}
+
+@keyframes timeDilation {
+  0%,
+  100% {
+    filter: blur(0);
+  }
+  50% {
+    filter: blur(5px);
+  }
+}

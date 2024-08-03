@@ -577,6 +577,72 @@ function renderEntanglements() {
   });
 }
 
+class QuantumWormhole {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = 0;
+    this.maxRadius = 150;
+    this.particles = [];
+    this.lifetime = 120;
+    this.createParticles();
+  }
+
+  createParticles() {
+    for (let i = 0; i < 100; i++) {
+      this.particles.push({
+        x: this.x,
+        y: this.y,
+        radius: Math.random() * 2 + 1,
+        angle: Math.random() * Math.PI * 2,
+        speed: Math.random() * 2 + 1,
+        color: `hsl(${Math.random() * 60 + 180}, 100%, 50%)`,
+      });
+    }
+  }
+
+  update() {
+    this.lifetime--;
+    this.radius = Math.min(this.radius + 5, this.maxRadius);
+
+    this.particles.forEach((particle) => {
+      particle.x += Math.cos(particle.angle) * particle.speed;
+      particle.y += Math.sin(particle.angle) * particle.speed;
+      particle.radius *= 0.99;
+    });
+  }
+
+  draw(ctx) {
+    // Draw wormhole
+    const gradient = ctx.createRadialGradient(
+      this.x,
+      this.y,
+      0,
+      this.x,
+      this.y,
+      this.radius
+    );
+    gradient.addColorStop(0, "rgba(52, 152, 219, 0)");
+    gradient.addColorStop(0.5, "rgba(52, 152, 219, 0.3)");
+    gradient.addColorStop(1, "rgba(52, 152, 219, 0)");
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Draw particles
+    this.particles.forEach((particle) => {
+      ctx.beginPath();
+      ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+      ctx.fillStyle = particle.color;
+      ctx.fill();
+    });
+  }
+}
+
+let quantumWormholes = [];
+
 function animateEntanglementCursor() {
   entanglementCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -586,6 +652,15 @@ function animateEntanglementCursor() {
   });
 
   renderEntanglements();
+
+  // Update and draw quantum wormholes
+  quantumWormholes.forEach((wormhole, index) => {
+    wormhole.update();
+    wormhole.draw(entanglementCtx);
+    if (wormhole.lifetime <= 0) {
+      quantumWormholes.splice(index, 1);
+    }
+  });
 
   // Update and draw click effects
   clickEffects.forEach((effect, index) => {
@@ -745,3 +820,27 @@ if (isTouchDevice) {
 window.addEventListener("resize", handleEntanglementResize);
 initParticles(); // Initialize particles
 animateEntanglementCursor();
+
+document.getElementById("name").addEventListener("click", (e) => {
+  const rect = e.target.getBoundingClientRect();
+  const x = e.clientX;
+  const y = e.clientY;
+  quantumWormholes.push(new QuantumWormhole(x, y));
+
+  // Add a distortion effect to the name
+  e.target.style.animation = "distortion 0.5s ease-in-out";
+  setTimeout(() => {
+    e.target.style.animation = "";
+  }, 500);
+
+  // Create a time dilation effect
+  createTimeDilationEffect();
+});
+
+function createTimeDilationEffect() {
+  const content = document.getElementById("content");
+  content.style.animation = "timeDilation 1s ease-in-out";
+  setTimeout(() => {
+    content.style.animation = "";
+  }, 1000);
+}
