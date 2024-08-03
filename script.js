@@ -379,3 +379,203 @@ function typeWriter(element, text, speed = 100) {
   }
   type();
 }
+
+// Blue Quantum Entanglement Network Cursor with Enhanced Visibility
+const entanglementCanvas = document.getElementById("quantum-cursor");
+const entanglementCtx = entanglementCanvas.getContext("2d");
+
+let canvasWidth = (entanglementCanvas.width = window.innerWidth);
+let canvasHeight = (entanglementCanvas.height = window.innerHeight);
+
+let entanglementCursorX = canvasWidth / 2;
+let entanglementCursorY = canvasHeight / 2;
+
+// Blue-centric color palette
+const colorPalette = [
+  "rgba(52, 152, 219, 0.8)", // Light blue
+  "rgba(41, 128, 185, 0.8)", // Medium blue
+  "rgba(27, 79, 114, 0.8)", // Dark blue
+  "rgba(93, 173, 226, 0.8)", // Sky blue
+  "rgba(52, 73, 94, 0.8)", // Blue-gray
+];
+
+const cursorColor = "rgba(255, 255, 255, 1)"; // Solid white for better visibility
+const cursorGlowColor = "rgba(255, 255, 255, 0.5)"; // White glow
+
+let isHovering = false;
+let pulseSize = 0;
+
+class EntangledParticle {
+  constructor() {
+    this.posX = Math.random() * canvasWidth;
+    this.posY = Math.random() * canvasHeight;
+    this.radius = Math.random() * 3 + 2;
+    this.baseRadius = this.radius;
+    this.velocity = Math.random() * 0.7 + 0.3;
+    this.direction = Math.random() * Math.PI * 2;
+    this.isEntangled = false;
+    this.particleColor =
+      colorPalette[Math.floor(Math.random() * colorPalette.length)];
+  }
+
+  updatePosition() {
+    this.posX += Math.cos(this.direction) * this.velocity;
+    this.posY += Math.sin(this.direction) * this.velocity;
+
+    if (this.posX < 0 || this.posX > canvasWidth)
+      this.direction = Math.PI - this.direction;
+    if (this.posY < 0 || this.posY > canvasHeight)
+      this.direction = -this.direction;
+
+    const deltaX = this.posX - entanglementCursorX;
+    const deltaY = this.posY - entanglementCursorY;
+    const distanceToCursor = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    if (distanceToCursor < 180) {
+      this.isEntangled = true;
+      this.radius = this.baseRadius * (1 + (180 - distanceToCursor) / 180);
+      if (isHovering) {
+        this.radius *= 1.5; // Increase size when hovering
+      }
+    } else {
+      this.isEntangled = false;
+      this.radius = this.baseRadius;
+    }
+  }
+
+  render() {
+    entanglementCtx.beginPath();
+    entanglementCtx.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2);
+    entanglementCtx.fillStyle = this.particleColor;
+    entanglementCtx.fill();
+  }
+}
+
+const entangledParticles = Array(60)
+  .fill()
+  .map(() => new EntangledParticle());
+
+function renderEntanglements() {
+  entangledParticles.forEach((particle) => {
+    if (particle.isEntangled) {
+      entanglementCtx.beginPath();
+      entanglementCtx.moveTo(particle.posX, particle.posY);
+      entanglementCtx.lineTo(entanglementCursorX, entanglementCursorY);
+      entanglementCtx.strokeStyle = particle.particleColor.replace(
+        "0.8",
+        "0.3"
+      );
+      entanglementCtx.lineWidth = 1.5;
+      entanglementCtx.stroke();
+    }
+  });
+}
+
+function animateEntanglementCursor() {
+  entanglementCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+  entangledParticles.forEach((particle) => {
+    particle.updatePosition();
+    particle.render();
+  });
+
+  renderEntanglements();
+
+  // Draw enhanced cursor
+  // Outer glow
+  entanglementCtx.beginPath();
+  entanglementCtx.arc(
+    entanglementCursorX,
+    entanglementCursorY,
+    12,
+    0,
+    Math.PI * 2
+  );
+  const gradient = entanglementCtx.createRadialGradient(
+    entanglementCursorX,
+    entanglementCursorY,
+    6,
+    entanglementCursorX,
+    entanglementCursorY,
+    12
+  );
+  gradient.addColorStop(0, cursorGlowColor);
+  gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+  entanglementCtx.fillStyle = gradient;
+  entanglementCtx.fill();
+
+  // Inner cursor
+  entanglementCtx.beginPath();
+  entanglementCtx.arc(
+    entanglementCursorX,
+    entanglementCursorY,
+    8,
+    0,
+    Math.PI * 2
+  );
+  entanglementCtx.fillStyle = cursorColor;
+  entanglementCtx.fill();
+
+  // Draw hover effect
+  if (isHovering) {
+    entanglementCtx.beginPath();
+    entanglementCtx.arc(
+      entanglementCursorX,
+      entanglementCursorY,
+      pulseSize,
+      0,
+      Math.PI * 2
+    );
+    entanglementCtx.strokeStyle = cursorGlowColor;
+    entanglementCtx.lineWidth = 3;
+    entanglementCtx.stroke();
+
+    pulseSize += 1;
+    if (pulseSize > 40) pulseSize = 0;
+  }
+
+  requestAnimationFrame(animateEntanglementCursor);
+}
+
+function updateEntanglementCursor(e) {
+  entanglementCursorX = e.clientX;
+  entanglementCursorY = e.clientY;
+}
+
+function handleEntanglementResize() {
+  canvasWidth = entanglementCanvas.width = window.innerWidth;
+  canvasHeight = entanglementCanvas.height = window.innerHeight;
+}
+
+const isEntanglementTouchDevice =
+  "ontouchstart" in window ||
+  navigator.maxTouchPoints > 0 ||
+  navigator.msMaxTouchPoints > 0;
+
+if (!isEntanglementTouchDevice) {
+  document.addEventListener("mousemove", updateEntanglementCursor);
+  window.addEventListener("resize", handleEntanglementResize);
+  animateEntanglementCursor();
+
+  // Interaction with elements
+  const entanglementInteractiveElements = document.querySelectorAll(
+    "a, button, .dropdown, #scroll-indicator"
+  );
+
+  entanglementInteractiveElements.forEach((el) => {
+    el.addEventListener("mouseenter", () => {
+      isHovering = true;
+      entangledParticles.forEach((particle) => {
+        particle.velocity *= 1.5;
+      });
+    });
+
+    el.addEventListener("mouseleave", () => {
+      isHovering = false;
+      pulseSize = 0;
+      entangledParticles.forEach((particle) => {
+        particle.velocity /= 1.5;
+      });
+    });
+  });
+}

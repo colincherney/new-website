@@ -112,7 +112,7 @@ body {
   text-align: left;
   border: none;
   background-color: transparent;
-  cursor: pointer;
+  cursor: none;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -278,7 +278,7 @@ body {
   text-align: center;
   opacity: 1;
   transition: opacity 0.5s ease;
-  cursor: pointer;
+  cursor: none;
   z-index: 1000;
 }
 
@@ -348,4 +348,23 @@ body {
 #about-content:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+#quantum-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+body,
+a,
+button,
+.dropdown,
+#scroll-indicator,
+.dropbtn,
+.dropdown-content,
+.dropdown-content button {
+  cursor: none !important;
 }
