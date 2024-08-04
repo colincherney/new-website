@@ -419,7 +419,7 @@ class EntangledParticle {
   constructor() {
     this.posX = Math.random() * canvasWidth;
     this.posY = Math.random() * canvasHeight;
-    this.radius = Math.random() * 3 + 1;
+    this.radius = Math.random() * 2 + 0.5;
     this.baseRadius = this.radius;
     this.velocity = Math.random() * 0.5 + 0.1;
     this.direction = Math.random() * Math.PI * 2;
@@ -570,7 +570,7 @@ function renderEntanglements() {
       gradient.addColorStop(1, "rgba(52, 152, 219, 0.1)");
 
       entanglementCtx.strokeStyle = gradient;
-      entanglementCtx.lineWidth = 1;
+      entanglementCtx.lineWidth = 0.5;
       entanglementCtx.stroke();
     }
   });
