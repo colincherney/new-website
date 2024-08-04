@@ -210,8 +210,7 @@ window.addEventListener("load", (event) => {
 
   // Initialize new features
   handleParallax();
-  const nameElement = document.getElementById("name");
-  typeWriter(nameElement, nameElement.textContent);
+  animateNameOnLoad(); // Add this line to trigger the new animation
 });
 
 // Interactive Fluid Animation
@@ -865,4 +864,26 @@ function createQuantumFracture(x, y) {
   setTimeout(() => {
     fracture.remove();
   }, 2000);
+}
+
+function animateNameOnLoad() {
+  const nameElement = document.getElementById("name");
+  const letters = nameElement.querySelectorAll(".letter");
+
+  letters.forEach((letter, index) => {
+    // Generate random starting positions
+    const flyX = (Math.random() - 0.5) * window.innerWidth + "px";
+    const flyY = (Math.random() - 0.5) * window.innerHeight + "px";
+    const rotate = (Math.random() - 0.5) * 720 + "deg";
+
+    // Set custom properties for each letter
+    letter.style.setProperty("--flyX", flyX);
+    letter.style.setProperty("--flyY", flyY);
+    letter.style.setProperty("--rotate", rotate);
+
+    // Start the animation with a staggered delay
+    setTimeout(() => {
+      letter.classList.add("animate");
+    }, index * 100);
+  });
 }
