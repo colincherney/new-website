@@ -389,8 +389,8 @@ let canvasHeight = (entanglementCanvas.height = window.innerHeight);
 let entanglementCursorX = canvasWidth / 2;
 let entanglementCursorY = canvasHeight / 2;
 
-const cursorColor = "rgba(255, 255, 255, 1)"; // Solid white for better visibility
-const cursorGlowColor = "rgba(255, 255, 255, 0.5)"; // White glow
+const cursorColor = "rgba(44, 62, 80, 1)"; // Solid primary color
+const cursorGlowColor = "rgba(44, 62, 80, 0.5)"; // Primary color glow
 
 let isHovering = false;
 let pulseSize = 0;
@@ -424,7 +424,7 @@ class EntangledParticle {
     this.velocity = Math.random() * 0.5 + 0.1;
     this.direction = Math.random() * Math.PI * 2;
     this.isEntangled = false;
-    this.particleColor = `rgba(52, 152, 219, ${Math.random() * 0.5 + 0.3})`; // Blue color with varying opacity
+    this.particleColor = `rgba(44, 62, 80, ${Math.random() * 0.5 + 0.3})`; // Dark blue-gray color with varying opacity
     this.pulseSpeed = Math.random() * 0.05 + 0.02;
     this.rotation = 0;
     this.rotationSpeed = (Math.random() - 0.5) * 0.02;
@@ -513,7 +513,7 @@ class ClickEffect {
         speed: Math.random() * 5 + 2,
         angle: Math.random() * Math.PI * 2,
         spin: Math.random() * 0.2 - 0.1,
-        color: `rgba(52, 152, 219, ${Math.random() * 0.5 + 0.5})`,
+        color: `rgba(243, 156, 18, ${Math.random() * 0.5 + 0.5})`, // Gold accent color
       });
     }
   }
@@ -595,7 +595,9 @@ class QuantumWormhole {
         radius: Math.random() * 2 + 1,
         angle: Math.random() * Math.PI * 2,
         speed: Math.random() * 2 + 1,
-        color: `hsl(${Math.random() * 60 + 180}, 100%, 50%)`,
+        color: `hsl(${Math.random() * 20 + 200}, 60%, ${
+          Math.random() * 20 + 40
+        }%)`, // Blue-gray range
       });
     }
   }
@@ -621,9 +623,9 @@ class QuantumWormhole {
       this.y,
       this.radius
     );
-    gradient.addColorStop(0, "rgba(52, 152, 219, 0)");
-    gradient.addColorStop(0.5, "rgba(52, 152, 219, 0.3)");
-    gradient.addColorStop(1, "rgba(52, 152, 219, 0)");
+    gradient.addColorStop(0, "rgba(44, 62, 80, 0)");
+    gradient.addColorStop(0.5, "rgba(44, 62, 80, 0.3)");
+    gradient.addColorStop(1, "rgba(44, 62, 80, 0)");
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
