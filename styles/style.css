@@ -510,6 +510,8 @@ button,
   justify-content: center;
   align-items: center;
   flex-wrap: nowrap;
+  transform: perspective(1000px) rotateX(10deg);
+  transition: transform 0.3s ease;
 }
 
 #name::before,
@@ -560,4 +562,25 @@ button,
 
 #name:hover::after {
   width: 80px;
+}
+
+#name:hover {
+  transform: perspective(1000px) rotateX(0deg) translateZ(50px);
+}
+
+#name .letter {
+  display: inline-block;
+  transition: transform 0.3s ease, text-shadow 0.3s ease;
+}
+
+#name:hover .letter {
+  text-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+#name:hover .letter:nth-child(even) {
+  transform: translateZ(20px);
+}
+
+#name:hover .letter:nth-child(odd) {
+  transform: translateZ(40px);
 }
