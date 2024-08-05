@@ -889,3 +889,102 @@ function animateNameOnLoad() {
     }, index * 100);
   });
 }
+
+// Black Hole Effect
+const blackHoleCanvas = document.getElementById("black-hole-canvas");
+const bhCtx = blackHoleCanvas.getContext("2d");
+
+let bhWidth, bhHeight, bhCenterX, bhCenterY;
+
+function resizeBlackHole() {
+  bhWidth = blackHoleCanvas.width = window.innerWidth;
+  bhHeight = blackHoleCanvas.height = window.innerHeight;
+  bhCenterX = bhWidth / 2;
+  bhCenterY = bhHeight / 2;
+}
+
+window.addEventListener("resize", resizeBlackHole);
+resizeBlackHole();
+
+class BlackHoleParticle {
+  constructor() {
+    this.x = Math.random() * bhWidth;
+    this.y = Math.random() * bhHeight;
+    this.size = Math.random() * 2 + 1;
+    this.speedX = 0;
+    this.speedY = 0;
+    this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.3})`;
+  }
+
+  update() {
+    const dx = this.x - bhCenterX;
+    const dy = this.y - bhCenterY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const force = 5 / (distance + 1);
+
+    this.speedX -= (dx / distance) * force;
+    this.speedY -= (dy / distance) * force;
+
+    this.x += this.speedX;
+    this.y += this.speedY;
+
+    if (
+      distance < 5 ||
+      this.x < 0 ||
+      this.x > bhWidth ||
+      this.y < 0 ||
+      this.y > bhHeight
+    ) {
+      this.x = Math.random() * bhWidth;
+      this.y = Math.random() * bhHeight;
+      this.speedX = 0;
+      this.speedY = 0;
+    }
+
+    this.size = Math.max(0.1, this.size - 0.01);
+  }
+
+  draw() {
+    bhCtx.fillStyle = this.color;
+    bhCtx.beginPath();
+    bhCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    bhCtx.fill();
+  }
+}
+
+const blackHoleParticles = [];
+const blackHoleParticleCount = 1000;
+
+for (let i = 0; i < blackHoleParticleCount; i++) {
+  blackHoleParticles.push(new BlackHoleParticle());
+}
+
+function animateBlackHole() {
+  bhCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
+  bhCtx.fillRect(0, 0, bhWidth, bhHeight);
+
+  blackHoleParticles.forEach((particle) => {
+    particle.update();
+    particle.draw();
+  });
+
+  // Draw the black hole
+  const gradient = bhCtx.createRadialGradient(
+    bhCenterX,
+    bhCenterY,
+    0,
+    bhCenterX,
+    bhCenterY,
+    200
+  );
+  gradient.addColorStop(0, "rgba(0, 0, 0, 1)");
+  gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+  bhCtx.fillStyle = gradient;
+  bhCtx.beginPath();
+  bhCtx.arc(bhCenterX, bhCenterY, 200, 0, Math.PI * 2);
+  bhCtx.fill();
+
+  requestAnimationFrame(animateBlackHole);
+}
+
+animateBlackHole();
